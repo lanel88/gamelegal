@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clique no Alvo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            user-select: none;
+        }
+        #area-do-jogo {
+            width: 600px;
+            height: 400px;
+            border: 2px solid #333;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        #alvo {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #28a745;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+        }
+        #placar {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        #mensagem {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #d9534f;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        /* Estilo para a tela de susto */
+        #tela-susto {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Começa escondida */
+            z-index: 100;
+        }
+        #tela-susto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="placar">Pontuação: 0</div>
+    <div id="mensagem"></div>
+
+    <div id="area-do-jogo">
+        <div id="alvo"></div>
+    </div>
+
+    <button onclick="iniciarJogo()">Iniciar Jogo</button>
+
+    <div id="tela-susto">
+        <img src="susto1.jpeg" alt="Susto!">
+    </div>
+    <audio id="som-susto" src="susto.mp3" preload="auto"></audio>
+
+    <script>
+        let pontuacao = 0;
+        let tempoRestante = 10;
+        let temporizador;
+        const alvo = document.getElementById('alvo');
+        const placar = document.getElementById('placar');
+        const mensagem = document.getElementById('mensagem');
+        const areaDoJogo = document.getElementById('area-do-jogo');
+        const botao = document.querySelector('button');
+        const telaSusto = document.getElementById('tela-susto');
+        const somSusto = document.getElementById('som-susto');
+
+        function iniciarJogo() {
+            pontuacao = 0;
+            tempoRestante = 10;
+            placar.textContent = 'Pontuação: 0';
+            mensagem.textContent = '';
+            botao.disabled = true;
+            alvo.style.display = 'block';
+            moverAlvo();
+            
+            // Garante que a tela de susto está invisível
+            telaSusto.style.display = 'none';
+
+            temporizador = setInterval(() => {
+                tempoRestante--;
+                if (tempoRestante >= 0) {
+                    mensagem.textContent = `Tempo: ${tempoRestante}s`;
+                }
+                if (tempoRestante <= 0) {
+                    fimDeJogo();
+                }
+            }, 1000);
+        }
+
+        function moverAlvo() {
+            const x = Math.random() * (areaDoJogo.offsetWidth - alvo.offsetWidth);
+            const y = Math.random() * (areaDoJogo.offsetHeight - alvo.offsetHeight);
+            
+            alvo.style.left = `${x}px`;
+            alvo.style.top = `${y}px`;
+        }
+
+        alvo.addEventListener('click', () => {
+            pontuacao++;
+            placar.textContent = `Pontuação: ${pontuacao}`;
+            moverAlvo();
+            
+            // **NOVA LÓGICA: VERIFICAR A PONTUAÇÃO PARA O SUSTO**
+            if (pontuacao >= 10) {
+                jumpscare();
+            }
+        });
+
+        function fimDeJogo() {
+            clearInterval(temporizador);
+            alvo.style.display = 'none';
+            mensagem.textContent = `Fim de Jogo! Sua pontuação final foi: ${pontuacao}`;
+            botao.disabled = false;
+        }
+        
+        // **NOVA FUNÇÃO PARA O SUSTO**
+        function jumpscare() {
+            // Interrompe o jogo
+            fimDeJogo(); 
+
+            // Mostra a imagem e toca o som
+            telaSusto.style.display = 'block';
+            somSusto.play();
+        }
+
+    </script>
+</body>
+</html>
